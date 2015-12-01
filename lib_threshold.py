@@ -29,6 +29,11 @@ def imageToNPMatrix(image):
             mat[y][x] = image.getpixel((x, y))
     return mat
 
+def thresholdImage(image):
+    return image.point(lambda x: 0 if x < 128 else 255, '1')
+def thresholdMatrix(mat):
+    return [[255 if x > 128 else 0 for x in row] for row in mat]
+
 def makeWhiteOnBlack(image):
     thresholdedImage = image.point(lambda x: 0 if x < 128 else 255, '1')
 
@@ -53,10 +58,45 @@ def makeWhiteOnBlack(image):
 
     return thresholdedImage
 
-def _2dArrayToImage(matrix):
-    im = Image.new("L", (matrix.shape[1], matrix.shape[0]))
-    im.putdata(matrix.flatten())
-    return im
+def mergeImageMatrices(pos1, mat1, pos2, mat2):
+    min_x = min(pos1[0], pos2[0])
+    max_x = max(pos1[0] + mat1.shape[1], pos2[0] + mat2.shape[1])
+
+    min_y = min(pos1[1], pos2[1])
+    max_y = max(pos1[1] + mat1.shape[0], pos2[1] + mat2.shape[0])
+
+    mat = numpy.zeros((max_y - min_y, max_x - min_x))
+
+    ox = pos1[0] - min_x
+    oy = pos1[1] - min_y
+
+    for x in range(0, mat1.shape[1]):
+        for y in range(0, mat1.shape[0]):
+            mat[oy + y][ox + x] = mat1[y][x]
+
+    ox = pos2[0] - min_x
+    oy = pos2[1] - min_y
+    for x in range(0, mat2.shape[1]):
+        for y in range(0, mat2.shape[0]):
+            mat[oy + y][ox + x] = mat2[y][x]
+
+    return (min_x, min_y), mat
+
+def merge2PartLetters(letters):
+    x = 0
+    while x < len(letters) - 1:
+        letter = letters[x]
+        nextLetter = letters[x+1]
+        letter_x = letter[0][0]
+        nextLetter_x = nextLetter[0][0]
+        if nextLetter_x - letter_x < letter[1].shape[1]:
+            letters[x] = mergeImageMatrices(letter[0], letter[1], nextLetter[0], nextLetter[1])
+            del letters[x+1]
+        else:
+            x = x + 1
+        
+
+
 
 # TAKES IN A MATRIX y,x ordering
 def identifyLetters(image):
@@ -78,10 +118,12 @@ def identifyLetters(image):
             return # done
         letter.append((x, y))
         distinctShapes[y][x] = num
-        recursiveFill(letter, x - 1, y, num)
-        recursiveFill(letter, x + 1, y, num)
-        recursiveFill(letter, x, y + 1, num)
-        recursiveFill(letter, x, y - 1, num)
+
+        for ox in range(-1, 2):
+            for oy in range(-1, 2):
+                if ox == 0 and oy == 0:
+                    continue
+                recursiveFill(letter, x + ox, y + oy, num)
 
     num = 1
 
@@ -116,4 +158,17 @@ def identifyLetters(image):
                 # push it to the letters list...
                 letters.append(((min_x, min_y), letter_rastered))
     letters.sort(key=(lambda tupple: tupple[0][0]))
+    merge2PartLetters(letters)
     return letters
+
+
+"""
+letters = identifyLetters(Image.open('./test-image2.png').convert('L'))
+baseMatrixPos = letters[0][0]
+baseMatrix = letters[0][1]
+for x in range(1, len(letters)):
+    (_bMatrix, _bMatrixPos) = mergeImageMatrices(baseMatrixPos, baseMatrix, letters[x][0], letters[x][1])
+    baseMatrixPos = _bMatrix
+    baseMatrix = _bMatrixPos
+matrixToImage(baseMatrix).show()
+"""

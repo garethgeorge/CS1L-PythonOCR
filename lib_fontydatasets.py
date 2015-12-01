@@ -13,7 +13,39 @@ import random
 def map0255to01(list):
     for index in range(0, len(list)):
         list[index] = float(list[index]) / 255.0
+    return list
 
+string = " ".join(chars)
+
+from lib_threshold import identifyLetters, makeWhiteOnBlack, matrixToImage, imageToNPMatrix, printMatrix, thresholdMatrix
+
+isFirst = True
+
+def charToOutputs(char):
+    arr = [0] * len(chars)
+    arr[chars.index(char)] = 1
+    return arr
+
+for fontName in fontNames:
+    for size in range(20, 28, 2):
+        font = ImageFont.truetype(fontName, size)
+
+        img = Image.new("L", (1000, 40), (0, 0, 0))
+        draw = ImageDraw.Draw(img)
+        draw.text((0, 0), string, (255,255,255), font=font)
+
+        letters = identifyLetters(img)
+        _28x28Images = [(symbol, imageToNPMatrix(fitTo28x28(matrixToImage(letter[1]))), charToOutputs(symbol)) for (symbol, letter) in zip(chars, letters)]
+        _28x28Images = [(symbol, thresholdMatrix(image), outputs) for (symbol, image, outputs) in _28x28Images]
+        for img in _28x28Images:
+            dataset.append(img)
+
+        if isFirst:
+            isFirst = False
+            for letter in _28x28Images:
+                printMatrix(letter[1])
+
+'''
 for fontName in fontNames:
 
     firstOf = True
@@ -58,5 +90,7 @@ for fontName in fontNames:
                 output[char_index] = 1
 
                 dataset.append((char, input, output))
+'''
+
 
 random.shuffle(dataset)
