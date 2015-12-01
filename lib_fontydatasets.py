@@ -6,16 +6,9 @@ from PIL import Image
 from PIL import ImageDraw
 
 from lib_LetterBBox import fitTo28x28
+from lib_dataset import dataset, fontNames, chars, IMAGE_WIDTH, IMAGE_HEIGHT
 
 import random
-
-IMAGE_WIDTH = 28
-IMAGE_HEIGHT = 28
-
-dataset = []
-
-fontNames = ['Arial.ttf' , 'Helvetica']
-chars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
 
 def map0255to01(list):
     for index in range(0, len(list)):
@@ -25,16 +18,16 @@ for fontName in fontNames:
 
     firstOf = True
     
-    for size in range(27, 28, 1):
+    for size in range(20, 28, 2):
     
         # create the font
         font = ImageFont.truetype(fontName, size)
 
         for char_index in range(0, len(chars)):
 
-            for repeat in range(0, 4):
-                ox = random.random() * 4 - 2
-                oy = random.random() * 4 - 2
+            for repeat in range(0, 1):
+                ox = 0
+                oy = 0
 
                 char = chars[char_index]
 
@@ -67,22 +60,3 @@ for fontName in fontNames:
                 dataset.append((char, input, output))
 
 random.shuffle(dataset)
-
-def nnetResultToChar(result):
-    max_index = 0
-    max_value = result[max_index]
-
-    for index in range(0, len(result)):
-        if result[index] > max_value:
-            max_value = result[index]
-            max_index = index
-    return chars[max_index]
-
-def scoreNetAccuracy(net, ds):
-    totalRight = 0.0
-    total = 0.0
-    for datum in dataset:
-        total = total + 1.0
-        if nnetResultToChar(net.activate(datum[1])) == datum[0]:
-            totalRight = totalRight + 1.0
-    return totalRight / total

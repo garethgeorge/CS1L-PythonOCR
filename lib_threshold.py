@@ -13,6 +13,12 @@ def printMatrix(image):
                 print " ",
         print ""
 
+def matrixToImage(matrix):
+    im = Image.new("L", (matrix.shape[1], matrix.shape[0]))
+    im.putdata(matrix.flatten())
+    return im
+
+
 def imageToNPMatrix(image):
     (width, height) = image.size
     imdata = list(image.getdata())
@@ -47,9 +53,19 @@ def makeWhiteOnBlack(image):
 
     return thresholdedImage
 
+def _2dArrayToImage(matrix):
+    im = Image.new("L", (matrix.shape[1], matrix.shape[0]))
+    im.putdata(matrix.flatten())
+    return im
+
 # TAKES IN A MATRIX y,x ordering
 def identifyLetters(image):
+    bw = makeWhiteOnBlack(image)
+    image = bw
+
     image = imageToNPMatrix(image)
+    bw = imageToNPMatrix(bw)
+
     distinctShapes = numpy.zeros(shape=image.shape)
     (height, width) = image.shape
 
@@ -58,7 +74,7 @@ def identifyLetters(image):
     def recursiveFill(letter, x, y, num):
         if x == -1 or y == -1 or x >= width or y >= height:
             return # done
-        if image[y][x] == 0 or distinctShapes[y][x] != 0:
+        if bw[y][x] == 0 or distinctShapes[y][x] != 0:
             return # done
         letter.append((x, y))
         distinctShapes[y][x] = num
@@ -71,7 +87,7 @@ def identifyLetters(image):
 
     for y in range(0, height):
         for x in range(0, width):
-            if image[y][x] != 0 and distinctShapes[y][x] == 0:
+            if bw[y][x] != 0 and distinctShapes[y][x] == 0:
                 # if we found an unmarked nonempty pixel then we will flood fill it
                 letter = [] # we build a list of the coordinates of the pixels in the letter. really slow but w/e
                 recursiveFill(letter, x, y, num)
@@ -97,16 +113,7 @@ def identifyLetters(image):
                 letter_rastered = numpy.zeros((max_y - min_y + 1, max_x - min_x + 1))
                 for (x,y) in letter:
                     letter_rastered[y - min_y][x - min_x] = image[y][x]
-
                 # push it to the letters list...
                 letters.append(((min_x, min_y), letter_rastered))
     letters.sort(key=(lambda tupple: tupple[0][0]))
     return letters
-
-
-
-whiteOnBlack = makeWhiteOnBlack(Image.open('./line-of-test-text.png').convert('L'))
-
-for letter in identifyLetters(whiteOnBlack):
-    printMatrix(letter[1])
-
