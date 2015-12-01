@@ -75,9 +75,9 @@ for _ in range(0, 10):
 results = []
 for _ in range(0, 4):
 
-    net = buildNetwork( IMAGE_WIDTH * IMAGE_HEIGHT, 100, len(chars), bias=True, hiddenclass=TanhLayer)
+    net = buildNetwork( IMAGE_WIDTH * IMAGE_HEIGHT, random.randint(50,150), len(chars), bias=True, hiddenclass=TanhLayer)
 
-    trainer = BackpropTrainer(net, ds, verbose=True, learningrate=0.0015, lrdecay=1)
+    trainer = BackpropTrainer(net, ds, verbose=True, learningrate=0.002, lrdecay=1)
     trainer.trainUntilConvergence(
         verbose=True,
         trainingData=ds,

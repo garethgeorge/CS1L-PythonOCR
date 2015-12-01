@@ -31,8 +31,12 @@ def imageToNPMatrix(image):
 
 def thresholdImage(image):
     return image.point(lambda x: 0 if x < 128 else 255, '1')
-def thresholdMatrix(mat):
-    return [[255 if x > 128 else 0 for x in row] for row in mat]
+def thresholdMatrix(src):
+    mat = numpy.zeros(src.shape)
+    for y in range(src.shape[0]):
+        for x in range(src.shape[1]):
+            mat[y][x] = 255 if src[y][x] > 128 else 0
+    return mat            
 
 def makeWhiteOnBlack(image):
     thresholdedImage = image.point(lambda x: 0 if x < 128 else 255, '1')

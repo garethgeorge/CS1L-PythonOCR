@@ -36,14 +36,17 @@ for fontName in fontNames:
 
         letters = identifyLetters(img)
         _28x28Images = [(symbol, imageToNPMatrix(fitTo28x28(matrixToImage(letter[1]))), charToOutputs(symbol)) for (symbol, letter) in zip(chars, letters)]
-        _28x28Images = [(symbol, thresholdMatrix(image), outputs) for (symbol, image, outputs) in _28x28Images]
-        for img in _28x28Images:
-            dataset.append(img)
-
+        _28x28Images = [(symbol, image, outputs) for (symbol, image, outputs) in _28x28Images]
         if isFirst:
             isFirst = False
             for letter in _28x28Images:
                 printMatrix(letter[1])
+        datums = [(symbol, map0255to01(list(matrix.flatten())), outputs) for (symbol, matrix, outputs) in _28x28Images]
+
+        for d in datums:
+            dataset.append(d)
+
+        
 
 '''
 for fontName in fontNames:
