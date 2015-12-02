@@ -22,7 +22,7 @@ print "... Loaded network from file"
 from PIL import Image
 from lib_threshold import identifyLetters, makeWhiteOnBlack, matrixToImage, imageToNPMatrix, thresholdMatrix
 from lib_LetterBBox import fitTo28x28
-from lib_dataset import nnetResultToChar
+from lib_dataset import nnetResultToChar, topNResults
 import numpy
 
 # first open image
@@ -34,5 +34,5 @@ letters = identifyLetters(image.convert('L'))
 # flatten to array inputs and clamp between 0 and 1
 
 nnetInputs = [thresholdMatrix(imageToNPMatrix(fitTo28x28(matrixToImage(img)))).flatten() for (pos, img) in letters]
-nnetOutputs = [nnetResultToChar(net.activate(input)) for input in nnetInputs]
+nnetOutputs = ["(" + ",".join(topNResults(net.activate(input), 3))+")" for input in nnetInputs]
 print "".join(nnetOutputs)

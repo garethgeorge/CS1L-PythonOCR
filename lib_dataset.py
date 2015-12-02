@@ -15,6 +15,10 @@ def nnetResultToChar(result):
             max_value = result[index]
             max_index = index
     return chars[max_index]
+def topNResults(result, count):
+    thingy = zip(result, chars)
+    thingy.sort(key=lambda x: -x[0])
+    return map(lambda x: x[1], thingy[0:count])
 
 def scoreNetAccuracy(net, ds):
     totalRight = 0.0

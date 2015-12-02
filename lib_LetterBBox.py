@@ -45,7 +45,7 @@ def fitTo28x28(letter):
 
     #print x_left, x_right, y_top, y_bottom
     # crop the image to the new size
-    letter_c = letter.crop((x_left, y_top, x_right, y_bottom))
+    letter_c = letter.crop((x_left, y_top, x_right + 1, y_bottom + 1))
     #letter_c = letter.crop((10, 10, 20, 20))
     letter_c = letter_c.resize((28, 28), Image.ANTIALIAS)
     return letter_c
