@@ -27,7 +27,7 @@ def charToOutputs(char):
     return arr
 
 for fontName in fontNames:
-    for size in range(20, 28, 2):
+    for size in range(24, 28, 2):
         font = ImageFont.truetype(fontName, size)
 
         img = Image.new("L", (1000, 40), (0, 0, 0))

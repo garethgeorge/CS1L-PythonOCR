@@ -73,19 +73,20 @@ for _ in range(0, 10):
 """
 
 results = []
-for _ in range(0, 10):
+for _ in range(0, 5):
 
     net = buildNetwork( IMAGE_WIDTH * IMAGE_HEIGHT, random.randint(50,150), len(chars), bias=True, hiddenclass=TanhLayer)
 
-    trainer = BackpropTrainer(net, ds, verbose=True, learningrate=0.001, lrdecay=1)
+    trainer = BackpropTrainer(net, ds, verbose=True, learningrate=0.004, lrdecay=1)
     trainer.trainUntilConvergence(
         verbose=True,
         trainingData=ds,
         validationData=ds,
-        maxEpochs=200)
+        maxEpochs=150)
 
     results.append((scoreNetAccuracy(net, dataset), net))
 results.sort(key=(lambda x: -x[0]))
+print map(lambda x: x[0], results)
 net = results[0][1]
 
 print "testing..."
